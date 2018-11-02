@@ -10,7 +10,11 @@ type Reciever interface {
 }
 
 //Reciverdefault 1
-type Reciverdefault struct{}
+type Reciverdefault struct {
+	Age  int
+	name string
+	Sex  int
+}
 
 // //Recieve 1		冲突
 // func (m Reciverdefault) Recieve() {
@@ -20,4 +24,5 @@ type Reciverdefault struct{}
 //Recieve 2
 func (m *Reciverdefault) Recieve() {
 	log.Println("m*")
+	m.Age = 0
 }
