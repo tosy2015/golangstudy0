@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/kataras/iris/middleware/logger"
-	"github.com/kataras/iris/middleware/recover"
+	irisRecover "github.com/kataras/iris/middleware/recover"
 
 	pb "github.com/golangstudy0/server/hello/hello"
 )
@@ -29,7 +29,7 @@ func main() {
 	// Optionally, add two built'n handlers
 	// that can recover from any http-relative panics
 	// and log the requests to the terminal.
-	app.Use(recover.New())
+	app.Use(irisRecover.New())
 	app.Use(logger.New())
 
 	// Method:   GET
@@ -52,15 +52,22 @@ func main() {
 	})
 
 	app.Get("/rpc", func(ctx iris.Context) {
+		//defer func() {
+		//	if e := recover(); e != nil {
+		//		fmt.Printf("Panicing %s\r\n", e)
+		//	}
+		//}()
 		client, err := rpc.DialHTTP("tcp", "localhost"+":1234")
 		if err != nil {
-			log.Fatal("dialing:", err)
+			//log.Fatal("dialing:", err)
+			fmt.Println("xxx dialing",err)
 		}
 		args := &arith.Args{7, 8}
 		var reply int
 		err = client.Call("Arith.Multiply", args, &reply)
 		if err != nil {
-			log.Fatal("arith error:", err)
+			//log.Fatal("arith error:", err)
+			log.Println("arith error:", err)
 		}
 		fmt.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
 		ctx.JSON(iris.Map{"args.A": args.A, "args.B": args.B, "reply": reply})
