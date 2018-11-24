@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"net/rpc"
 
-	"github.com/golangstudy0/server/srvrpc"
+	"github.com/golangstudy0/server/arith/arith"
 )
 
 func main() {
-	arith := new(srvrpc.Arith)
+	arith := new(arith.Arith)
 	rpc.Register(arith)
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", ":1234")

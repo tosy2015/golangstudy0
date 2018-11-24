@@ -1,16 +1,26 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/rpc"
+	"os"
+	"time"
 
+	"github.com/golangstudy0/server/arith/arith"
 	"github.com/kataras/iris"
+	"google.golang.org/grpc"
 
 	"github.com/kataras/iris/middleware/logger"
 	"github.com/kataras/iris/middleware/recover"
 
-	"github.com/golangstudy0/server/srvrpc"
+	pb "github.com/golangstudy0/server/hello/hello"
+)
+
+const (
+	address     = "localhost:2234"
+	defaultName = "tosy"
 )
 
 func main() {
@@ -46,7 +56,7 @@ func main() {
 		if err != nil {
 			log.Fatal("dialing:", err)
 		}
-		args := &srvrpc.Args{7, 8}
+		args := &arith.Args{7, 8}
 		var reply int
 		err = client.Call("Arith.Multiply", args, &reply)
 		if err != nil {
@@ -54,6 +64,28 @@ func main() {
 		}
 		fmt.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
 		ctx.JSON(iris.Map{"args.A": args.A, "args.B": args.B, "reply": reply})
+	})
+
+	app.Get("/grpc", func(ctxi iris.Context) {
+		conn, err := grpc.Dial(address, grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		defer conn.Close()
+		c := pb.NewGreeterClient(conn)
+
+		// Contact the server and print out its response.
+		name := defaultName
+		if len(os.Args) > 1 {
+			name = os.Args[1]
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+		ctxi.JSON(iris.Map{"Greeting": r.Message})
 	})
 	// http://localhost:8080
 	// http://localhost:8080/ping
