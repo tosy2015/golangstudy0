@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	address     = "localhost:2234"
+	addressRpc  = "localhost:1234"
+	addressGrpc     = "localhost:2234"
 	defaultName = "tosy"
 )
 
@@ -63,7 +64,7 @@ func main() {
 		//		fmt.Printf("Panicing %s\r\n", e)
 		//	}
 		//}()
-		client, err := rpc.DialHTTP("tcp", "localhost"+":1234")
+		client, err := rpc.DialHTTP("tcp", addressRpc)
 		if err != nil {
 			//log.Fatal("dialing:", err)
 			fmt.Println("xxx dialing",err)
@@ -80,7 +81,7 @@ func main() {
 	})
 
 	app.Get("/grpc", func(ctxi iris.Context) {
-		conn, err := grpc.Dial(address, grpc.WithInsecure())
+		conn, err := grpc.Dial(addressGrpc, grpc.WithInsecure())
 		if err != nil {
 			log.Print("did not connect: %v", err)
 		}
