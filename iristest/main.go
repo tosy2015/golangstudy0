@@ -23,6 +23,12 @@ const (
 	defaultName = "tosy"
 )
 
+//docker run  --rm -it -v /Users/tosy/go:/go golang:stretch env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags -s -a -installsuffix cgo -o /go/src/github.com/golangstudy0/iristest/web.out  /go/src/github.com/golangstudy0/iristest/main.go
+//docker build -t stretch-web:latest .
+//docker run -itd -p 8080:8080 stretch-web:latest
+//docker stop id( docker ps -a)
+//docker rm id( docker ps -a)
+
 func main() {
 	app := iris.New()
 	app.Logger().SetLevel("debug")
@@ -76,7 +82,7 @@ func main() {
 	app.Get("/grpc", func(ctxi iris.Context) {
 		conn, err := grpc.Dial(address, grpc.WithInsecure())
 		if err != nil {
-			log.Fatalf("did not connect: %v", err)
+			log.Print("did not connect: %v", err)
 		}
 		defer conn.Close()
 		c := pb.NewGreeterClient(conn)
@@ -90,7 +96,7 @@ func main() {
 		defer cancel()
 		r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
 		if err != nil {
-			log.Fatalf("could not greet: %v", err)
+			log.Printf("could not greet: %v", err)
 		}
 		ctxi.JSON(iris.Map{"Greeting": r.Message})
 	})
