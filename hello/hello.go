@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type world interface {
@@ -33,8 +34,22 @@ var _ hello = (*test)(nil)		//编译器校验  nil指针转结构体指针--赋�
 func main() {
 	tA := test{a:1}
 	iA := (hello)(&tA)
-	tC := iA.(*test2)			//panic		指针的结构体name不同于转换后的结构体name，接口实现可能不同！
-	tC.Hi()
+	//tC := iA.(*test2)			//panic		指针的结构体name不同于转换后的结构体name，接口实现可能不同！
+	//tC.Hi()
+
+	//如何判断interface的结构体名呢？
+	fmt.Println("haha TypeOf ",reflect.TypeOf(iA))
+
+	v := reflect.ValueOf(iA)				//获取 iA变量 真实值信息，真实Type，Kind		interface的Type是*main.test   Kind是ptr
+	fmt.Println("value:", v)
+	fmt.Println("type:", v.Type())
+	fmt.Println("kind:", v.Kind())
+
+	v2 := reflect.ValueOf(tA)				//tA的真实值信息，	Kind是struct，Type是main.test
+	fmt.Println("value:", v2)
+	fmt.Println("type:", v2.Type())
+	fmt.Println("kind:", v2.Kind())
+
 
 	t1 := test{a : 1}
 	//t1.Hi()
