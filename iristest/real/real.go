@@ -25,6 +25,7 @@ type Handler struct {
 func GetList(ctx iris.Context){
 	log.Println("GetList:call")
 	userToken := jwtconfig.Get().Get(ctx)
+	//userToken := ctx.Values().Get("jwt").(*jwt.Token)
 
 	if claims, ok := userToken.Claims.(jwt.MapClaims); ok && userToken.Valid {
 		ctx.Writef("uid:%s\n",claims["uid"].(string))
@@ -40,10 +41,9 @@ func GetList(ctx iris.Context){
 		}
 
 	}
-	user := ctx.Values().Get("jwt").(*jwt.Token)
 	ctx.Writef("This is an authenticated request\n")
 	ctx.Writef("Claim content:\n")
-	ctx.Writef("%s", user.Signature)
+	ctx.Writef("%s", userToken.Signature)
 	//TODO
 }
 
