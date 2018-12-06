@@ -14,7 +14,7 @@ var (
 			return []byte(Key), nil
 		},
 		SigningMethod: jwt.SigningMethodHS256,
-		//Expiration : true,
+		Expiration : true,
 	})
 )
 
