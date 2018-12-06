@@ -6,5 +6,3 @@ type Args struct {
 type Quotient struct {
 	Quo, Rem int
 }
-
-type Arith struct{}

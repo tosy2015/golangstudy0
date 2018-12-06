@@ -4,6 +4,8 @@ import (
 	"errors"
 )
 
+type Arith struct{}
+
 func (t *Arith) Multiply(args *Args, reply *int) error {
 	*reply = args.A * args.B
 	return nil

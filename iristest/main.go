@@ -3,24 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/golangstudy0/iristest/real"
+	"github.com/golangstudy0/iristest/user"
+	"github.com/golangstudy0/server/arith/arith"
+	"github.com/iris-contrib/middleware/cors"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/middleware/logger"
+	irisRecover "github.com/kataras/iris/middleware/recover"
+	pb "github.com/golangstudy0/server/hello/hello"
+	"google.golang.org/grpc"
 	"log"
 	"net/rpc"
 	"os"
 	"time"
 
-	"github.com/golangstudy0/server/arith/arith"
-	"github.com/kataras/iris"
-	"google.golang.org/grpc"
-
-	"github.com/kataras/iris/middleware/logger"
-	irisRecover "github.com/kataras/iris/middleware/recover"
-
-	pb "github.com/golangstudy0/server/hello/hello"
 )
 
 const (
 	addressRpc  = "localhost:1234"
-	addressGrpc     = "localhost:2234"
+	addressGrpc = "localhost:2234"
 	defaultName = "tosy"
 )
 
@@ -32,38 +33,33 @@ const (
 
 func main() {
 	app := iris.New()
+	//跨域
+	crs := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // allows everything, use that to change the hosts.
+		AllowCredentials: true,
+	})
+	//log
 	app.Logger().SetLevel("debug")
-	// Optionally, add two built'n handlers
-	// that can recover from any http-relative panics
-	// and log the requests to the terminal.
-	app.Use(irisRecover.New())
 	app.Use(logger.New())
+	//recoer
+	app.Use(irisRecover.New())
 
-	// Method:   GET
-	// Resource: http://localhost:8080
 	app.Handle("GET", "/", func(ctx iris.Context) {
 		ctx.HTML("<h1>Welcome</h1>")
 	})
 
-	// same as app.Handle("GET", "/ping", [...])
-	// Method:   GET
-	// Resource: http://localhost:8080/ping
-	app.Get("/ping", func(ctx iris.Context) {
-		ctx.WriteString("pong")
-	})
+	v1 := app.Party("/api/v1",crs).AllowMethods(iris.MethodOptions)
+	{
+		r := v1.Party("/real")
+		r.Get("/getList",real.New().GetList)
 
-	// Method:   GET
-	// Resource: http://localhost:8080/hello
-	app.Get("/hello", func(ctx iris.Context) {
-		ctx.JSON(iris.Map{"message": "Hello Iris!"})
-	})
+		u := v1.Party("/user")
+		u.Get("/login",user.New().Login)
+	}
 
+
+	//rpc demo
 	app.Get("/rpc", func(ctx iris.Context) {
-		//defer func() {
-		//	if e := recover(); e != nil {
-		//		fmt.Printf("Panicing %s\r\n", e)
-		//	}
-		//}()
 		client, err := rpc.DialHTTP("tcp", addressRpc)
 		if err != nil {
 			//log.Fatal("dialing:", err)
@@ -80,7 +76,13 @@ func main() {
 		ctx.JSON(iris.Map{"args.A": args.A, "args.B": args.B, "reply": reply})
 	})
 
+	//gprc demo
 	app.Get("/grpc", func(ctxi iris.Context) {
+		defer func() {
+			if e := recover(); e != nil {
+				fmt.Printf("Panicing %s\r\n", e)
+			}
+		}()
 		conn, err := grpc.Dial(addressGrpc, grpc.WithInsecure())
 		if err != nil {
 			log.Print("did not connect: %v", err)
@@ -101,8 +103,9 @@ func main() {
 		}
 		ctxi.JSON(iris.Map{"Greeting": r.Message})
 	})
-	// http://localhost:8080
-	// http://localhost:8080/ping
-	// http://localhost:8080/hello
-	app.Run(iris.Addr(":8080"), iris.WithoutServerError(iris.ErrServerClosed))
+
+	err := app.Run(iris.Addr(":8080"), iris.WithoutServerError(iris.ErrServerClosed))
+	if err != nil {
+		log.Println("err",err)
+	}
 }
