@@ -1,10 +1,12 @@
 package real
 
 import (
+	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golangstudy0/iristest/jwtconfig"
 	"github.com/kataras/iris"
 	"log"
+	"time"
 )
 
 func New()*Handler {
@@ -26,6 +28,17 @@ func GetList(ctx iris.Context){
 
 	if claims, ok := userToken.Claims.(jwt.MapClaims); ok && userToken.Valid {
 		ctx.Writef("uid:%s\n",claims["uid"].(string))
+
+		switch exp := claims["exp"].(type) {
+		case float64:
+			ctx.Writef("exp at :%f\n",exp)
+			ctx.Writef("exp at :%s\n" ,time.Unix(int64(exp),0))
+		case json.Number:
+			v, _ := exp.Int64()
+			ctx.Writef("exp at :%v\n",v)
+			ctx.Writef("exp at :%s\n" ,time.Unix(v,0))
+		}
+
 	}
 	user := ctx.Values().Get("jwt").(*jwt.Token)
 	ctx.Writef("This is an authenticated request\n")
