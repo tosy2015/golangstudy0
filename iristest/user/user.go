@@ -1,8 +1,12 @@
 package user
 
 import (
+	"github.com/dgrijalva/jwt-go"
+	"github.com/golangstudy0/iristest/jwtconfig"
 	"github.com/kataras/iris"
 	"log"
+	"strconv"
+	"time"
 )
 
 func New()*Handler {
@@ -20,7 +24,12 @@ type Handler struct {
 
 func Login(ctx iris.Context){
 	log.Println("Login:call")
-	//TODO
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"uid": strconv.FormatInt(time.Now().UnixNano(),10),
+	})
+	tokenString, _ := token.SignedString([]byte(jwtconfig.Key))
+	ctx.JSON(iris.Map{"Authorization": "Bearer "+tokenString})
+	log.Println("Login:return ",tokenString)
 }
 
 func Todo(ctx iris.Context){

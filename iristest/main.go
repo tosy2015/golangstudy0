@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golangstudy0/iristest/jwtconfig"
 	"github.com/golangstudy0/iristest/real"
 	"github.com/golangstudy0/iristest/user"
 	"github.com/golangstudy0/server/arith/arith"
@@ -17,8 +17,6 @@ import (
 	"net/rpc"
 	"os"
 	"time"
-	jwtmiddleware "github.com/iris-contrib/middleware/jwt"
-
 )
 
 const (
@@ -46,34 +44,23 @@ func main() {
 	//recoer
 	app.Use(irisRecover.New())
 	//jwt
-	jwtHandler := jwtmiddleware.New(jwtmiddleware.Config{
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte("My Secret"), nil
-		},
-		// When set, the middleware verifies that tokens are signed with the specific signing algorithm
-		// If the signing method is not constant the ValidationKeyGetter callback can be used to implement additional checks
-		// Important to avoid security issues described here: https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/
-		SigningMethod: jwt.SigningMethodHS256,
-	})
+	j := jwtconfig.Get()
 
 	app.Handle("GET", "/", func(ctx iris.Context) {
-		//user := ctx.Values().Get("jwt").(*jwt.Token)
-		//ctx.Writef("This is an authenticated request\n")
-		//ctx.Writef("Claim content:\n")
-		//ctx.Writef("%s", user.Signature)
 		ctx.HTML("<h1>Welcome</h1>")
 	})
 
 	v1 := app.Party("/api/v1",crs).AllowMethods(iris.MethodOptions)
 	{
 		r := v1.Party("/real")
-		r.Use(jwtHandler.Serve)
+		r.Use(j.Serve)
 		r.Get("/getList",real.New().GetList)
 
 		u := v1.Party("/user")
 		u.Get("/login",user.New().Login)
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//rpc demo
 	app.Get("/rpc", func(ctx iris.Context) {
 		client, err := rpc.DialHTTP("tcp", addressRpc)
@@ -91,7 +78,7 @@ func main() {
 		fmt.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
 		ctx.JSON(iris.Map{"args.A": args.A, "args.B": args.B, "reply": reply})
 	})
-
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//gprc demo
 	app.Get("/grpc", func(ctxi iris.Context) {
 		defer func() {
@@ -120,6 +107,7 @@ func main() {
 		ctxi.JSON(iris.Map{"Greeting": r.Message})
 	})
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	log.Println("start...")
 	err := app.Run(iris.Addr(":8080"), iris.WithoutServerError(iris.ErrServerClosed))
 	if err != nil {
