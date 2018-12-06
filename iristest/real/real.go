@@ -19,7 +19,7 @@ type Handler struct {
 }
 
 func GetList(ctx iris.Context){
-	log.Println("getList:call")
+	log.Println("GetList:call")
 	//TODO
 }
 
