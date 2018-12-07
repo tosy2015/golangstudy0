@@ -6,6 +6,7 @@ import (
 	"github.com/golangstudy0/iristest/jwtconfig"
 	"github.com/kataras/iris"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -28,6 +29,7 @@ func GetList(ctx iris.Context){
 	//userToken := ctx.Values().Get("jwt").(*jwt.Token)
 
 	if claims, ok := userToken.Claims.(jwt.MapClaims); ok && userToken.Valid {
+		ctx.Writef("uid:%v exp:%v\n",reflect.TypeOf(claims["uid"]),reflect.TypeOf(claims["exp"]))
 		ctx.Writef("uid:%s\n",claims["uid"].(string))
 
 		switch exp := claims["exp"].(type) {
