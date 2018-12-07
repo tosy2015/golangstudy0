@@ -32,6 +32,16 @@ func (*test2) Hi(){
 var _ hello = (*test)(nil)		//编译器校验  nil指针转结构体指针--赋值--interface。校验结构体是否实现了interface
 
 func main() {
+	//数组
+	//arrA := [5]int {1,2,3,4,5}
+	arrA := [...]int {1,2,3,4,5}
+	parrB := &arrA
+	copyA := arrA
+	fmt.Printf("arr P %p %p %p  \n\n",&arrA,parrB,&copyA )
+
+	fmt.Printf("arr P %p %p %p  \n\n",&(arrA[0]),&(parrB[0]),&copyA[0])
+
+
 	tA := test{a:1}
 	iA := (hello)(&tA)
 	//tC := iA.(*test2)			//panic		指针的结构体name不同于转换后的结构体name，接口实现可能不同！
