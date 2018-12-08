@@ -13,6 +13,14 @@ type hello interface {
 	Hi()
 }
 
+type XXX interface {
+	hello
+}
+
+type YYY struct{
+	test2
+}
+
 type test struct {
 	a	int
 }
@@ -31,7 +39,16 @@ func (*test2) Hi(){
 
 var _ hello = (*test)(nil)		//编译器校验  nil指针转结构体指针--赋值--interface。校验结构体是否实现了interface
 
+func DumpMethods(Foo interface{}){
+	fooType := reflect.TypeOf(Foo)
+	for i := 0; i < fooType.NumMethod(); i++ {
+		method := fooType.Method(i)
+		fmt.Println(method.Name)
+	}
+}
+
 func main() {
+
 	//数组
 	//arrA := [5]int {1,2,3,4,5}
 	arrA := [...]int {1,2,3,4,5}
@@ -46,6 +63,12 @@ func main() {
 	iA := (hello)(&tA)
 	//tC := iA.(*test2)			//panic		指针的结构体name不同于转换后的结构体name，接口实现可能不同！
 	//tC.Hi()
+
+	fmt.Println(".........")
+	DumpMethods(new(YYY))
+	iXX := iA.(XXX)
+	fmt.Println(".........")
+	DumpMethods(iXX)
 
 	//如何判断interface的结构体名呢？
 	fmt.Println("haha TypeOf ",reflect.TypeOf(iA))
