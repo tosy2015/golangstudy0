@@ -20,6 +20,9 @@ type XXX interface {
 type YYY struct{
 	test2
 }
+func (*YYY) Hi(){
+	fmt.Println("3333")
+}
 
 type test struct {
 	a	int
@@ -70,6 +73,8 @@ func main() {
 	fmt.Println(".........")
 	DumpMethods(iXX)
 
+	y := YYY{}
+	y.Hi()
 	//如何判断interface的结构体名呢？
 	fmt.Println("haha TypeOf ",reflect.TypeOf(iA))
 
