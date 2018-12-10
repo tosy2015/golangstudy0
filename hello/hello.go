@@ -51,6 +51,24 @@ func DumpMethods(Foo interface{}){
 }
 
 func main() {
+	//var c chan struct{}	//c = nil
+	//go func() {
+	//	<- c				//死锁
+	//}()
+	//c <- struct {}{}		//死锁							all goroutines are asleep - deadlock!
+
+	//无缓冲
+	//c := make(chan struct{})
+	//go func() {
+	//	<- c
+	//}()
+	//c <- struct {}{}				//不go取出，主线程死锁
+
+	//有缓冲
+	//c := make(chan struct{},1)
+	//c <- struct {}{}				//正常
+	//close(c)
+	//c <- struct {}{}				//close之后发送，panic
 
 	//数组
 	//arrA := [5]int {1,2,3,4,5}
