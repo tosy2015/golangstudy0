@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"regexp"
+	"time"
 )
 
 type world interface {
@@ -50,7 +52,27 @@ func DumpMethods(Foo interface{}){
 	}
 }
 
+
 func main() {
+	s := "AA[:10_x1111好]sdf[:10_11哈哈11]kjjk[:10_11哈哈]jkfBB[:10_哈哈11]zzz[:1_哈哈]kAAkjjk[:12]jBB"
+	r := regexp.MustCompile(`\[:[^\]]+\]`)
+
+	//testarr := make([]string,0,10)
+	//testarr = append(testarr, "11")
+	//testarr = append(testarr, "11")
+	//fmt.Println(testarr)
+
+	tN := time.Now()
+	for i:=0 ; i < 100000 ; i++{
+		r.FindAllStringSubmatch(s,-1)
+		//result :=
+		//fmt.Println(result)
+	}
+	elapsed := time.Since(tN)
+	fmt.Println("App elapsed: ", elapsed)
+
+
+
 	//var c chan struct{}	//c = nil
 	//go func() {
 	//	<- c				//死锁
