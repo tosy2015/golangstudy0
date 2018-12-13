@@ -54,6 +54,26 @@ func DumpMethods(Foo interface{}){
 
 
 func main() {
+	testch := make(chan struct{})		//不传最大数量，默认是1
+	go func() {
+		for {
+			select{
+			case  _,ok:= <-testch:
+				fmt.Println("d := <-testch",ok)
+				if !ok {
+					return
+				}
+			}
+			fmt.Println("for ...overtestchn")
+		}
+		fmt.Println("overtestchn")
+	}()
+
+	//testch <- struct{}{}
+	testch <- struct{}{}
+	close(testch)
+
+
 	s := "AA[:10_x1111好]sdf[:10_11哈哈11]kjjk[:10_11哈哈]jkfBB[:10_哈哈11]zzz[:1_哈哈]kAAkjjk[:12]jBB"
 	r := regexp.MustCompile(`\[:[^\]]+\]`)
 
